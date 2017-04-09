@@ -2,7 +2,9 @@ var options = {
   speed: .5,
   sampleMode: "input",
   fadePath: 0,
-  sampleRate: 50
+  sampleRate: 50,
+  compression: 0,
+  paused: false
 }
 
 var example = "0 1\n0.5 1.6\n2 2\n2.75 1\n1 -1\n0 -2\n-1 -1\n-2.75 1\n-2 2\n-0.5 1.6"
@@ -29,7 +31,7 @@ pctx.translate(w/2,h/2)
 pctx.scale(1,-1)
 sctx.translate(w/2,h/2)
 sctx.scale(1,-1)
-
+pctx.imageSmoothingEnabled = false;
 reset()
 
 function circle(c, x, y, r, color, fill) {
@@ -76,22 +78,32 @@ function grid(c) {
   c.stroke()
 }
 
-function reset() {
-  clearInterval(anim)
-  anim = null
-  clearInterval(timer)
-  timer = null
-  keyframes = []
+function clear() {
   ctx.clearRect(-w/2,-h/2,w,h)
   grid(ctx)
   pctx.clearRect(-w/2,-h/2,w,h)
   sctx.clearRect(-w/2,-h/2,w,h)
 }
 
-function evaluateKeyframes () {
+function reset() {
+  clearInterval(anim)
+  anim = null
   clearInterval(timer)
   timer = null
-  keyframes = dft(keyframes)
+  keyframes = []
+  clear()
+}
+
+function evaluateKeyframes () {
+  var compSlider = document.querySelector("#comp-sider")
+  compSlider.max = keyframes.length-2
+  compSlider.value = 0
+  options.compression = 0
+  clearInterval(timer)
+  timer = null
+  keyframes = dft(keyframes).sort(function(a,b) {
+    return b[0]*b[0]+b[1]*b[1]-a[0]*a[0]-a[1]*a[1]
+  })
   anim = window.setInterval(function() {
     ctx.clearRect(-w/2,-h/2,w,h)
     grid(ctx)
@@ -104,8 +116,10 @@ function evaluateKeyframes () {
     pctx.restore()
 
     var angle
-    for (var i = 0 ; i < keyframes.length; ++i ) {
-      angle = animt/360*tpi*((i>keyframes.length/2)?(i-keyframes.length):i)
+    for (var i = 0 ; i < keyframes.length-options.compression; ++i ) {
+      var f = keyframes[i][2]
+      angle = animt/360*tpi*((f>keyframes.length/2)?(f-keyframes.length):f)
+      // angle = animt/360*tpi*i
       c = cmult(Math.cos(angle),Math.sin(angle),keyframes[i][0], keyframes[i][1])
       circle(ctx, 0, 0, Math.sqrt(c[0]*c[0]+c[1]*c[1]), 'black', false)
       circle(ctx, c[0], c[1], 1, 'red', false)
@@ -119,8 +133,10 @@ function evaluateKeyframes () {
     circle(pctx, 0, 0, .5, 'red', false)
     ctx.restore()
     pctx.restore()
-    animt += options.speed
-    if (animt == 360) animt = 0
+    if (!options.paused) {
+      animt += options.speed
+      if (animt > 360) animt -= 360
+    }
   },10)
 }
 
@@ -158,10 +174,38 @@ cvs.onmouseup = function(e) {
   }
 }
 
+cvs.onmouseout = function(e) {
+  if (options.sampleMode == "curve" && timer) {
+    evaluateKeyframes()
+  }
+}
+
 // ----- HANDLING GUI OPTIONS ------
 
 document.querySelector("#speed-slider").onchange = function(e) {
   options.speed = e.target.valueAsNumber/20
+}
+
+document.querySelector("#step-back").onmousedown = function(e) {
+  animt -= options.speed
+  if (animt < 0) animt += 360
+}
+
+document.querySelector("#step-forward").onmousedown = function(e) {
+  animt += options.speed
+  if (animt > 360) animt -= 360
+}
+
+document.querySelector("#play-pause").onclick = function(e) {
+  options.paused ^= true
+  e.target.innerHTML = options.paused?"resume":"pause"
+  document.querySelector("#step-back").disabled = !options.paused
+  document.querySelector("#step-forward").disabled = !options.paused
+}
+
+document.querySelector("#comp-sider").onchange = function(e) {
+  options.compression = e.target.valueAsNumber
+  pctx.clearRect(-w/2,-h/2,w,h)
 }
 
 document.querySelector("#mode-select").onchange = function(e) {

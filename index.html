@@ -12,7 +12,11 @@
     <div class="meta">
       <div class="controls">
         <span>Animation Speed: </span><br><input id="speed-slider" type="range" min="1" max="20" value="10" step="0.5"><br>
-        <span>Fade? </span><br><input id="fade-path" type="range" min="0" max="3" value="0" step="0.25"><br>
+        <button id="step-back" disabled>step back</button>
+        <button id="play-pause">pause</button>
+        <button id="step-forward" disabled>step forward</button><br>
+        <span>Fade: </span><br><input id="fade-path" type="range" min="0" max="3" value="0" step="0.25"><br>
+        <span>Compression: </span><br><input id="comp-sider" type="range" min="0" max="1" value="0" step="1"><br>
         <span>Sample Mode: </span>
         <select id="mode-select">
           <option value="input">Input</option>
@@ -38,7 +42,8 @@
       <br><br>Parameters:
       <ul>
         <li><b>Animation Speed</b>: Controls the speed at which the path is drawn</li>
-        <li><b>Fade?</b>: Controls the speed at which the path fades (Far-left indicates no fade)</li>
+        <li><b>Fade</b>: Controls the speed at which the path fades (Far-left indicates no fade)</li>
+        <li><b>Compression</b>: Determines how many epicycles to use (Removes from the system in order of radius)</li>
         <li><b>Sample Mode</b>: Determines the method of sample input (Switching modes clears the screen)</li>
         <ul>
           <li><b>Input Mode</b>: Type in the coordinates of the samples</li>
