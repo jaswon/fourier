@@ -1,5 +1,5 @@
 var options = {
-  speed: 1/20,
+  speed: .5,
   curveMode: true,
   fadePath: 0,
   sampleRate: 50
@@ -31,10 +31,19 @@ pctx.scale(1,-1)
 sctx.translate(w/2,h/2)
 sctx.scale(1,-1)
 
+function circle(c, x, y, r, color, fill) {
+  c.save()
+  c.strokeStyle = color
+  c.beginPath()
+  c.arc(x,y,r,0,tpi)
+  fill?c.fill():c.stroke()
+  c.restore()
+}
+
 function evaluateKeyframes () {
   clearInterval(timer)
   timer = null
-  keyframes = dft(keyframes) // compute the discrete fourier transform
+  keyframes = dft(keyframes)
   anim = window.setInterval(function() {
     ctx.clearRect(-w/2,-h/2,w,h)
     ctx.save()
@@ -44,7 +53,7 @@ function evaluateKeyframes () {
     pctx.fillStyle = "rgba(255,255,255,"+options.fadePath+")"
     pctx.fillRect(-w/2,-h/2,w,h)
     pctx.restore()
-
+    // draw axes
     ctx.beginPath()
     ctx.moveTo(-w/2,0)
     ctx.lineTo(w/2,0)
@@ -54,17 +63,10 @@ function evaluateKeyframes () {
 
     var angle
     for (var i = 0 ; i < keyframes.length; ++i ) {
-      var f = (i>keyframes.length/2)?(i-keyframes.length):i
-      angle = animt/360*tpi*f
+      angle = animt/360*tpi*((keyframes[i][2]>keyframes.length/2)?(keyframes[i][2]-keyframes.length):keyframes[i][2])
       c = cmult(Math.cos(angle),Math.sin(angle),keyframes[i][0], keyframes[i][1])
-      ctx.beginPath()
-      ctx.arc(0,0,Math.sqrt(c[0]*c[0]+c[1]*c[1]),0,tpi)
-      ctx.stroke()
-      ctx.strokeStyle = 'red'
-      ctx.beginPath()
-      ctx.arc(c[0],c[1],1,0,tpi)
-      ctx.stroke()
-      ctx.strokeStyle = 'black'
+      circle(ctx, 0, 0, Math.sqrt(c[0]*c[0]+c[1]*c[1]), 'black', false)
+      circle(ctx, c[0], c[1], 1, 'red', false)
       ctx.beginPath()
       ctx.moveTo(0,0)
       ctx.translate(c[0],c[1])
@@ -72,11 +74,7 @@ function evaluateKeyframes () {
       ctx.stroke()
       pctx.translate(c[0],c[1])
     }
-    pctx.strokeStyle = 'red'
-    pctx.beginPath()
-    pctx.arc(0,0,1,0,tpi)
-    pctx.stroke()
-    pctx.strokeStyle = 'black'
+    circle(pctx, 0, 0, .5, 'red', false)
     ctx.restore()
     pctx.restore()
     animt += options.speed
@@ -96,16 +94,12 @@ cvs.onmousedown = function(e) {
       sctx.clearRect(-w/2,-h/2,w,h)
       timer = window.setInterval(function(){
         keyframes.push([cx,cy])
-        sctx.beginPath()
-        sctx.arc(cx,cy,3,0,tpi)
-        sctx.fill()
+        circle(sctx, cx, cy, 3, 'black', true)
       },Math.floor(options.sampleRate))
     } else {
       if (anim == null) {
         keyframes.push([cx,cy])
-        sctx.beginPath()
-        sctx.arc(cx,cy,3,0,tpi)
-        sctx.fill()
+        circle(sctx, cx, cy, 3, 'black', true)
       }
     }
   }
