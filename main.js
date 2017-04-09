@@ -84,7 +84,7 @@ function evaluateKeyframes () {
 
 cvs.onmousedown = function(e) {
   if (e.which == 1) {
-    cx = e.clientX-w/2, cy = h/2-e.clientY
+    cx = e.clientX-10-w/2, cy = h/2-e.clientY+10
     if (options.curveMode) {
       clearInterval(anim)
       anim = null
@@ -113,7 +113,7 @@ cvs.onmousedown = function(e) {
 }
 
 cvs.onmousemove = function(e) {
-  cx = e.clientX-w/2, cy = h/2-e.clientY
+  cx = e.clientX-10-w/2, cy = h/2-e.clientY+10
 }
 
 cvs.onmouseup = function(e) {
