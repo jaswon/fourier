@@ -14,7 +14,7 @@ function dft(time) {
       sreal +=  time[j][0] * Math.cos(angle) + time[j][1] * Math.sin(angle);
       simag += -time[j][0] * Math.sin(angle) + time[j][1] * Math.cos(angle);
     }
-    ret.push([sreal/n,simag/n,i])
+    ret.push([sreal/n,simag/n])
   }
   return ret
 }

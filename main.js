@@ -63,7 +63,7 @@ function evaluateKeyframes () {
 
     var angle
     for (var i = 0 ; i < keyframes.length; ++i ) {
-      angle = animt/360*tpi*((keyframes[i][2]>keyframes.length/2)?(keyframes[i][2]-keyframes.length):keyframes[i][2])
+      angle = animt/360*tpi*((i>keyframes.length/2)?(i-keyframes.length):i)
       c = cmult(Math.cos(angle),Math.sin(angle),keyframes[i][0], keyframes[i][1])
       circle(ctx, 0, 0, Math.sqrt(c[0]*c[0]+c[1]*c[1]), 'black', false)
       circle(ctx, c[0], c[1], 1, 'red', false)
