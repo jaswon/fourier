@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <title>curve copier</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div class="canvas-container" oncontextmenu="return false">
+      <canvas id="path" width="600" height="600"></canvas>
+      <canvas id="sample" width="600" height="600"></canvas>
+      <canvas id="circles" width="600" height="600"></canvas>
+    </div>
+    <div class="meta">
+      <div class="controls">
+        <span>Animation Speed: </span><br><input id="speed-slider" type="range" min="1" max="20" value="10" step="0.5"><br>
+        <span>Fade? </span><br><input id="fade-path" type="range" min="0" max="3" value="0" step="0.25"><br>
+        <span>Sample Mode: </span>
+        <select id="mode-select">
+          <option value="curve">Curve</option>
+          <option value="point">Point</option>
+        </select>
+        <div id="curve-controls" style="padding:0">
+          <span>Sample Rate: </span><br><input id="sample-slider" type="range" min="1" max="2" value="1.3" step="0.05"><br>
+        </div>
+        <div id="point-controls" hidden style="padding:0">
+          <button id="clear-samples">Clear Samples</button>
+          <button id="point-fit">Evaluate</button>
+        </div>
+      </div>
+    </div>
+    <div class="description" >
+      This app lets you input a set of points, and then constructs a Ptolemaic system of epicycles and deferents based on the Discrete Fourier Transform of the sample.
+      <br><br>Parameters:
+      <ul>
+        <li><b>Animation Speed</b>: Controls the speed at which the path is drawn</li>
+        <li><b>Fade?</b>: Controls the speed at which the path fades (Far-left indicates no fade)</li>
+        <li><b>Sample Mode</b>: Determines the method of sample input</li>
+        <ul>
+          <li><b>Curve Mode</b>: Click and drag with the mouse to input samples</li>
+          <ul>
+            <li><b>Sample Rate</b>: Determines the rate at which a sample is taken along the drag</li>
+          </ul>
+          <li><b>Point Mode</b>: Click individual points to input a sample</li>
+          <ul>
+            <li><b>Clear Samples</b>: Clears all samples from the list</li>
+            <li><b>Evaluate</b>: Finish sampling, start construction (Note: evaluating in Curve mode is implicit in the release of the mouse)</li>
+          </ul>
+        </ul>
+      </ul>
+    </div>
+
+    <script src="dft.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
