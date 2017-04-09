@@ -1,6 +1,6 @@
 var options = {
   speed: .5,
-  curveMode: true,
+  sampleMode: "curve",
   fadePath: 0,
   sampleRate: 50
 }
@@ -9,6 +9,7 @@ var keyframes = []
 var timer = null, anim = null
 var animt = 0
 var cx = 0, cy = 0
+var scale = 5
 
 var cvs = document.querySelector("#circles")
 var path = document.querySelector("#path")
@@ -40,19 +41,60 @@ function circle(c, x, y, r, color, fill) {
   c.restore()
 }
 
+function grid(c) {
+  c.save()
+  c.font = '15px sans-serif';
+  c.scale(1,-1)
+  var text = c.measureText("5")
+  c.fillText("5",w/2-text.width*1.2/2, 15 )
+  text = c.measureText("-5")
+  c.fillText("-5",text.width*1.2/2-w/2, 15 )
+  text = c.measureText("5i")
+  c.fillText("5i",text.width*1.2/2, 15-h/2 )
+  text = c.measureText("-5i")
+  c.fillText("-5i",text.width*1.2/2, h/2-8 )
+  c.restore()
+  c.beginPath()
+  for (var i = -w/2 ; i < w/2 ; i += w/(scale*2)) {
+    c.moveTo(i,h/2)
+    c.lineTo(i,-h/2)
+  }
+  for (var i = -h/2 ; i < h/2 ; i += h/(scale*2)) {
+    c.moveTo(-w/2,i)
+    c.lineTo(w/2,i)
+  }
+  c.lineWidth = .5
+  c.strokeStyle = 'rgba(0,0,0,.5)'
+  c.stroke()
+  c.beginPath()
+  c.moveTo(0,h/2)
+  c.lineTo(0,-h/2)
+  c.moveTo(-w/2,0)
+  c.lineTo(w/2,0)
+  c.lineWidth = 1
+  c.strokeStyle = 'black'
+  c.stroke()
+}
+
+function reset() {
+  clearInterval(anim)
+  anim = null
+  clearInterval(timer)
+  timer = null
+  keyframes = []
+  ctx.clearRect(-w/2,-h/2,w,h)
+  grid(ctx)
+  pctx.clearRect(-w/2,-h/2,w,h)
+  sctx.clearRect(-w/2,-h/2,w,h)
+}
+
 function evaluateKeyframes () {
   clearInterval(timer)
   timer = null
   keyframes = dft(keyframes)
   anim = window.setInterval(function() {
     ctx.clearRect(-w/2,-h/2,w,h)
-    // draw axes
-    ctx.beginPath()
-    ctx.moveTo(-w/2,0)
-    ctx.lineTo(w/2,0)
-    ctx.moveTo(0,h/2)
-    ctx.lineTo(0,-h/2)
-    ctx.stroke()
+    grid(ctx)
     ctx.save()
     pctx.save()
     // handle path fading
@@ -85,29 +127,21 @@ function evaluateKeyframes () {
 cvs.onmousedown = function(e) {
   if (e.which == 1) {
     cx = e.clientX-10-w/2, cy = h/2-e.clientY+10
-    if (options.curveMode) {
-      clearInterval(anim)
-      anim = null
-      keyframes = []
-      ctx.clearRect(-w/2,-h/2,w,h)
-      // draw axes
-      ctx.beginPath()
-      ctx.moveTo(-w/2,0)
-      ctx.lineTo(w/2,0)
-      ctx.moveTo(0,h/2)
-      ctx.lineTo(0,-h/2)
-      ctx.stroke()
-      pctx.clearRect(-w/2,-h/2,w,h)
-      sctx.clearRect(-w/2,-h/2,w,h)
-      timer = window.setInterval(function(){
-        keyframes.push([cx,cy])
-        circle(sctx, cx, cy, 3, 'black', true)
-      },Math.floor(options.sampleRate))
-    } else {
-      if (anim == null) {
-        keyframes.push([cx,cy])
-        circle(sctx, cx, cy, 3, 'black', true)
-      }
+    switch (options.sampleMode) {
+      case "curve":
+        reset()
+        timer = window.setInterval(function(){
+          keyframes.push([cx,cy])
+          circle(sctx, cx, cy, 3, 'black', true)
+        },Math.floor(options.sampleRate))
+        break
+      case "point":
+        if (anim == null) {
+          keyframes.push([cx,cy])
+          circle(sctx, cx, cy, 3, 'black', true)
+        }
+        break
+      default: break
     }
   }
 }
@@ -118,7 +152,7 @@ cvs.onmousemove = function(e) {
 
 cvs.onmouseup = function(e) {
   if (e.which == 1) {
-    if (options.curveMode) {
+    if (options.sampleMode == "curve") {
       evaluateKeyframes()
     }
   }
@@ -131,25 +165,10 @@ document.querySelector("#speed-slider").onchange = function(e) {
 }
 
 document.querySelector("#mode-select").onchange = function(e) {
-  options.curveMode = e.target.value == "curve"
-  document.querySelector("#curve-controls").hidden = !options.curveMode
-  document.querySelector("#point-controls").hidden = options.curveMode
-  // reset canvas and loops
-  clearInterval(anim)
-  anim = null
-  clearInterval(timer)
-  timer = null
-  keyframes = []
-  ctx.clearRect(-w/2,-h/2,w,h)
-  // draw axes
-  ctx.beginPath()
-  ctx.moveTo(-w/2,0)
-  ctx.lineTo(w/2,0)
-  ctx.moveTo(0,h/2)
-  ctx.lineTo(0,-h/2)
-  ctx.stroke()
-  pctx.clearRect(-w/2,-h/2,w,h)
-  sctx.clearRect(-w/2,-h/2,w,h)
+  options.sampleMode = e.target.value
+  var controls = ["curve","point","input"]
+  controls.forEach(function(i) { document.querySelector("#"+i+"-controls").hidden = options.sampleMode != i })
+  reset()
 }
 
 document.querySelector("#fade-path").onchange = function(e) {
@@ -161,22 +180,21 @@ document.querySelector("#sample-slider").onchange = function(e) {
   options.sampleRate = 1000/Math.pow(10,e.target.valueAsNumber)
 }
 
-document.querySelector("#clear-samples").onclick = function(e) {
-  clearInterval(anim)
-  anim = null
-  keyframes = []
-  ctx.clearRect(-w/2,-h/2,w,h)
-  // draw axes
-  ctx.beginPath()
-  ctx.moveTo(-w/2,0)
-  ctx.lineTo(w/2,0)
-  ctx.moveTo(0,h/2)
-  ctx.lineTo(0,-h/2)
-  ctx.stroke()
-  pctx.clearRect(-w/2,-h/2,w,h)
-  sctx.clearRect(-w/2,-h/2,w,h)
-}
-
-document.querySelector("#point-fit").onclick = function(e) {
+document.querySelector("#clear-samples").onclick = reset
+document.querySelector("#point-fit").onclick = evaluateKeyframes
+document.querySelector("#input-fit").onclick = function () {
+  reset()
+  keyframes = document.querySelector("#sample-data").value
+    .replace(/[^0-9\-\. \n]/gim,"")
+    .trim()
+    .split("\n")
+    .map(function(s) {
+      return s.split(" ").map(function(e) {
+        return Number(e)/scale/2*w
+      })
+    })
+  keyframes.forEach(function(e) {
+    circle(sctx, e[0], e[1], 3, 'black', true)
+  })
   evaluateKeyframes()
 }
