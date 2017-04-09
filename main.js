@@ -168,6 +168,9 @@ document.querySelector("#mode-select").onchange = function(e) {
   options.sampleMode = e.target.value
   var controls = ["curve","point","input"]
   controls.forEach(function(i) { document.querySelector("#"+i+"-controls").hidden = options.sampleMode != i })
+  if (!document.querySelector("#input-controls").hidden) {
+    document.querySelector("#sample-data").value = "0 1\n0.5 1.6\n2 2\n2.75 1\n1 -1\n0 -2\n-1 -1\n-2.75 1\n-2 2\n-0.5 1.6"
+  }
   reset()
 }
 
