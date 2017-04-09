@@ -46,13 +46,6 @@ function evaluateKeyframes () {
   keyframes = dft(keyframes)
   anim = window.setInterval(function() {
     ctx.clearRect(-w/2,-h/2,w,h)
-    ctx.save()
-    pctx.save()
-    // handle path fading
-    pctx.save()
-    pctx.fillStyle = "rgba(255,255,255,"+options.fadePath+")"
-    pctx.fillRect(-w/2,-h/2,w,h)
-    pctx.restore()
     // draw axes
     ctx.beginPath()
     ctx.moveTo(-w/2,0)
@@ -60,6 +53,13 @@ function evaluateKeyframes () {
     ctx.moveTo(0,h/2)
     ctx.lineTo(0,-h/2)
     ctx.stroke()
+    ctx.save()
+    pctx.save()
+    // handle path fading
+    pctx.save()
+    pctx.fillStyle = "rgba(255,255,255,"+options.fadePath+")"
+    pctx.fillRect(-w/2,-h/2,w,h)
+    pctx.restore()
 
     var angle
     for (var i = 0 ; i < keyframes.length; ++i ) {
@@ -90,6 +90,13 @@ cvs.onmousedown = function(e) {
       anim = null
       keyframes = []
       ctx.clearRect(-w/2,-h/2,w,h)
+      // draw axes
+      ctx.beginPath()
+      ctx.moveTo(-w/2,0)
+      ctx.lineTo(w/2,0)
+      ctx.moveTo(0,h/2)
+      ctx.lineTo(0,-h/2)
+      ctx.stroke()
       pctx.clearRect(-w/2,-h/2,w,h)
       sctx.clearRect(-w/2,-h/2,w,h)
       timer = window.setInterval(function(){
@@ -134,6 +141,13 @@ document.querySelector("#mode-select").onchange = function(e) {
   timer = null
   keyframes = []
   ctx.clearRect(-w/2,-h/2,w,h)
+  // draw axes
+  ctx.beginPath()
+  ctx.moveTo(-w/2,0)
+  ctx.lineTo(w/2,0)
+  ctx.moveTo(0,h/2)
+  ctx.lineTo(0,-h/2)
+  ctx.stroke()
   pctx.clearRect(-w/2,-h/2,w,h)
   sctx.clearRect(-w/2,-h/2,w,h)
 }
@@ -152,6 +166,13 @@ document.querySelector("#clear-samples").onclick = function(e) {
   anim = null
   keyframes = []
   ctx.clearRect(-w/2,-h/2,w,h)
+  // draw axes
+  ctx.beginPath()
+  ctx.moveTo(-w/2,0)
+  ctx.lineTo(w/2,0)
+  ctx.moveTo(0,h/2)
+  ctx.lineTo(0,-h/2)
+  ctx.stroke()
   pctx.clearRect(-w/2,-h/2,w,h)
   sctx.clearRect(-w/2,-h/2,w,h)
 }
