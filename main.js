@@ -1,9 +1,11 @@
 var options = {
   speed: .5,
-  sampleMode: "curve",
+  sampleMode: "input",
   fadePath: 0,
   sampleRate: 50
 }
+
+var example = "0 1\n0.5 1.6\n2 2\n2.75 1\n1 -1\n0 -2\n-1 -1\n-2.75 1\n-2 2\n-0.5 1.6"
 
 var keyframes = []
 var timer = null, anim = null
@@ -21,16 +23,14 @@ var sctx = sample.getContext("2d")
 var h = cvs.height
 var w = cvs.width
 
-ctx.font = '36px arial'
-ctx.textAlign = 'center'
-ctx.fillText('Click to draw',w/2,h/2)
-
 ctx.translate(w/2,h/2)
 ctx.scale(1,-1)
 pctx.translate(w/2,h/2)
 pctx.scale(1,-1)
 sctx.translate(w/2,h/2)
 sctx.scale(1,-1)
+
+reset()
 
 function circle(c, x, y, r, color, fill) {
   c.save()
@@ -46,7 +46,7 @@ function grid(c) {
   c.font = '15px sans-serif';
   c.scale(1,-1)
   var text = c.measureText("5")
-  c.fillText("5",w/2-text.width*1.2/2, 15 )
+  c.fillText("5",w/2-10-text.width*1.2/2, 15 )
   text = c.measureText("-5")
   c.fillText("-5",text.width*1.2/2-w/2, 15 )
   text = c.measureText("5i")
@@ -169,7 +169,7 @@ document.querySelector("#mode-select").onchange = function(e) {
   var controls = ["curve","point","input"]
   controls.forEach(function(i) { document.querySelector("#"+i+"-controls").hidden = options.sampleMode != i })
   if (options.sampleMode == "input") {
-    document.querySelector("#sample-data").value = "0 1\n0.5 1.6\n2 2\n2.75 1\n1 -1\n0 -2\n-1 -1\n-2.75 1\n-2 2\n-0.5 1.6"
+    document.querySelector("#sample-data").value = example
   }
   reset()
 }
@@ -201,3 +201,6 @@ document.querySelector("#input-fit").onclick = function () {
   })
   evaluateKeyframes()
 }
+
+// initialize
+document.querySelector("#sample-data").value = example
