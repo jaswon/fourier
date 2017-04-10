@@ -7,7 +7,7 @@ var options = {
   paused: false
 }
 
-var example = "0 1\n0.5 1.6\n2 2\n2.75 1\n1 -1\n0 -2\n-1 -1\n-2.75 1\n-2 2\n-0.5 1.6"
+var example = "-.1 2.2\n.1 2.2\n1.5 2.7\n2.5 1\n1 -1\n0 -1.5\n-1 -1\n-2.5 1\n-1.5 2.7"
 
 var keyframes = []
 var timer = null, anim = null
@@ -99,8 +99,10 @@ function evaluateKeyframes () {
   compSlider.max = keyframes.length-2
   compSlider.value = 0
   options.compression = 0
+  animt = 0
   clearInterval(timer)
   timer = null
+  clearInterval(anim)
   keyframes = dft(keyframes).sort(function(a,b) {
     return b[0]*b[0]+b[1]*b[1]-a[0]*a[0]-a[1]*a[1]
   })

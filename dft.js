@@ -10,7 +10,7 @@ function dft(time) {
   for (var i = 0 ; i < n ; ++i) {
     var sreal = 0, simag = 0, angle = 0
     for (var j = 0 ; j < n ; ++j) {
-      angle = -tpi * i * j / n;
+      angle = tpi * i * j / n;
       sreal +=  time[j][0] * Math.cos(angle) + time[j][1] * Math.sin(angle);
       simag += -time[j][0] * Math.sin(angle) + time[j][1] * Math.cos(angle);
     }
