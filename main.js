@@ -7,7 +7,7 @@ var options = {
   paused: false
 }
 
-var example = "-.1 2.2\n.1 2.2\n1.5 2.7\n2.5 1\n1 -1\n0 -1.5\n-1 -1\n-2.5 1\n-1.5 2.7"
+var example = "-.1 1.25\n.1 1.25\n1.5 1.75\n2.5 0\n1 -2\n0 -2.5\n-1 -2\n-2.5 0\n-1.5 1.75"
 
 var keyframes = []
 var timer = null, anim = null
