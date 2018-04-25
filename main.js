@@ -7,6 +7,15 @@ var options = {
   paused: false
 }
 
+function getParams () {
+  var pairs =  window.location.search.substr(1).split('&')
+  return pairs.reduce((acc, pair) => {
+    let [k,v] = pair.split('=')
+    acc[k] = v
+    return acc
+  },{})
+}
+
 var example = "-.1 1.25\n.1 1.25\n1.5 1.75\n2.5 0\n1 -2\n0 -2.5\n-1 -2\n-2.5 0\n-1.5 1.75"
 
 var keyframes = []
@@ -31,7 +40,7 @@ pctx.translate(w/2,h/2)
 pctx.scale(1,-1)
 sctx.translate(w/2,h/2)
 sctx.scale(1,-1)
-pctx.imageSmoothingEnabled = false;
+pctx.imageSmoothingEnabled = true;
 reset()
 
 function circle(c, x, y, r, color, fill) {
@@ -95,17 +104,20 @@ function reset() {
 }
 
 function evaluateKeyframes () {
+  console.log(keyframes.map(p => `${p.real} ${p.imag}`).join('\n'))
   var compSlider = document.querySelector("#comp-sider")
   compSlider.max = keyframes.length-2
   compSlider.value = 0
   options.compression = 0
+  document.querySelector("#num-circles").innerHTML = (keyframes.length-options.compression)+" / "+(keyframes.length)
   animt = 0
   clearInterval(timer)
   timer = null
   clearInterval(anim)
   keyframes = dft(keyframes).sort(function(a,b) {
-    return b[0]*b[0]+b[1]*b[1]-a[0]*a[0]-a[1]*a[1]
+    return b[0].abs-a[0].abs
   })
+  console.log(  keyframes.reduce((acc,val) => acc + `+ (${val[0].real.toFixed(2)}+${val[0].imag.toFixed(2)}I)*exp(${val[1].toFixed()}I*t)`, "0"));
   anim = window.setInterval(function() {
     ctx.clearRect(-w/2,-h/2,w,h)
     grid(ctx)
@@ -117,20 +129,15 @@ function evaluateKeyframes () {
     pctx.fillRect(-w/2,-h/2,w,h)
     pctx.restore()
 
-    var angle
     for (var i = 0 ; i < keyframes.length-options.compression; ++i ) {
-      var f = keyframes[i][2]
-      angle = animt/360*tpi*((f>keyframes.length/2)?(f-keyframes.length):f)
-      // angle = animt/360*tpi*i
-      c = cmult(Math.cos(angle),Math.sin(angle),keyframes[i][0], keyframes[i][1])
-      circle(ctx, 0, 0, Math.sqrt(c[0]*c[0]+c[1]*c[1]), 'black', false)
-      circle(ctx, c[0], c[1], 1, 'red', false)
+      c = Complex.Polar(1,animt/360*tpi*keyframes[i][1])['*'](keyframes[i][0])['*'](Complex(w/2/scale))
+      circle(ctx, 0, 0, c.abs, 'black', false)
       ctx.beginPath()
       ctx.moveTo(0,0)
-      ctx.translate(c[0],c[1])
+      ctx.translate(c.real, c.imag)
       ctx.lineTo(0,0)
       ctx.stroke()
-      pctx.translate(c[0],c[1])
+      pctx.translate(c.real, c.imag)
     }
     circle(pctx, 0, 0, .5, 'red', false)
     ctx.restore()
@@ -149,13 +156,13 @@ cvs.onmousedown = function(e) {
       case "curve":
         reset()
         timer = window.setInterval(function(){
-          keyframes.push([cx,cy])
+          keyframes.push(Complex(cx*scale*2/w,cy*scale*2/w))
           circle(sctx, cx, cy, 3, 'black', true)
         },Math.floor(options.sampleRate))
         break
       case "point":
         if (anim == null) {
-          keyframes.push([cx,cy])
+          keyframes.push(Complex(cx*scale*2/w,cy*scale*2/w))
           circle(sctx, cx, cy, 3, 'black', true)
         }
         break
@@ -207,7 +214,15 @@ document.querySelector("#play-pause").onclick = function(e) {
 
 document.querySelector("#comp-sider").onchange = function(e) {
   options.compression = e.target.valueAsNumber
+  document.querySelector("#num-circles").innerHTML = (keyframes.length-options.compression)+" / "+(keyframes.length)
   pctx.clearRect(-w/2,-h/2,w,h)
+}
+
+function setData () {
+  var data = example
+  var param = getParams()['data']
+  if (param) data = atob(decodeURIComponent(param))
+  document.querySelector("#sample-data").value = data
 }
 
 document.querySelector("#mode-select").onchange = function(e) {
@@ -215,9 +230,16 @@ document.querySelector("#mode-select").onchange = function(e) {
   var controls = ["curve","point","input"]
   controls.forEach(function(i) { document.querySelector("#"+i+"-controls").hidden = options.sampleMode != i })
   if (options.sampleMode == "input") {
-    document.querySelector("#sample-data").value = example
+    setData()
   }
   reset()
+}
+
+document.querySelector("#export-input").onclick = function(e) {
+  var data = document.querySelector("#sample-data").value
+  var { protocol, host, pathname } = location
+  var url = [protocol, '//', host, pathname, '?data=', encodeURIComponent(btoa(data))].join('')
+  window.location.replace(url)
 }
 
 document.querySelector("#fade-path").onchange = function(e) {
@@ -238,15 +260,13 @@ document.querySelector("#input-fit").onclick = function () {
     .trim()
     .split("\n")
     .map(function(s) {
-      return s.split(" ").map(function(e) {
-        return Number(e)/scale/2*w
-      })
+      return Complex.apply(this,s.split(" ").map(Number))
     })
   keyframes.forEach(function(e) {
-    circle(sctx, e[0], e[1], 3, 'black', true)
+    circle(sctx, e.real*w/scale/2, e.imag*w/scale/2, 3, 'black', true)
   })
   evaluateKeyframes()
 }
 
 // initialize
-document.querySelector("#sample-data").value = example
+setData()
