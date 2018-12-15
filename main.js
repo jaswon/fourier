@@ -1,4 +1,6 @@
 var options = {
+  showCircles: true,
+  showPoints: true,
   speed: .5,
   sampleMode: "input",
   fadePath: 0,
@@ -114,10 +116,10 @@ function evaluateKeyframes () {
   clearInterval(timer)
   timer = null
   clearInterval(anim)
-  keyframes = dft(keyframes).sort(function(a,b) {
+  const dkeyframes = dft(keyframes).sort(function(a,b) {
     return b[0].abs-a[0].abs
   })
-  console.log(  keyframes.reduce((acc,val) => acc + `+ (${val[0].real.toFixed(2)}+${val[0].imag.toFixed(2)}I)*exp(${val[1].toFixed()}I*t)`, "0"));
+  console.log(  dkeyframes.reduce((acc,val) => acc + `+ (${val[0].real.toFixed(2)}+${val[0].imag.toFixed(2)}I)*exp(${val[1].toFixed()}I*t)`, "0"));
   anim = window.setInterval(function() {
     ctx.clearRect(-w/2,-h/2,w,h)
     grid(ctx)
@@ -129,9 +131,11 @@ function evaluateKeyframes () {
     pctx.fillRect(-w/2,-h/2,w,h)
     pctx.restore()
 
-    for (var i = 0 ; i < keyframes.length-options.compression; ++i ) {
-      c = Complex.Polar(1,animt/360*tpi*keyframes[i][1])['*'](keyframes[i][0])['*'](Complex(w/2/scale))
-      circle(ctx, 0, 0, c.abs, 'black', false)
+    for (var i = 0 ; i < dkeyframes.length-options.compression; ++i ) {
+      c = Complex.Polar(1,animt/360*tpi*dkeyframes[i][1])['*'](dkeyframes[i][0])['*'](Complex(w/2/scale))
+      if (options.showCircles) {
+        circle(ctx, 0, 0, c.abs, 'black', false)
+      }
       ctx.beginPath()
       ctx.moveTo(0,0)
       ctx.translate(c.real, c.imag)
@@ -251,6 +255,21 @@ document.querySelector("#sample-slider").onchange = function(e) {
   options.sampleRate = 1000/Math.pow(10,e.target.valueAsNumber)
 }
 
+document.querySelector("#show-circles").onchange = function(e) {
+  options.showCircles = e.target.checked
+}
+
+document.querySelector("#show-points").onchange = function(e) {
+  options.showPoints = e.target.checked
+  if (e.target.checked) {
+    keyframes.forEach(function(e) {
+      circle(sctx, e.real*w/scale/2, e.imag*w/scale/2, 3, 'black', true)
+    })
+  } else {
+    sctx.clearRect(-w/2,-h/2,w,h)
+  }
+}
+
 document.querySelector("#clear-samples").onclick = reset
 document.querySelector("#point-fit").onclick = evaluateKeyframes
 document.querySelector("#input-fit").onclick = function () {
@@ -262,9 +281,11 @@ document.querySelector("#input-fit").onclick = function () {
     .map(function(s) {
       return Complex.apply(this,s.split(" ").map(Number))
     })
-  keyframes.forEach(function(e) {
-    circle(sctx, e.real*w/scale/2, e.imag*w/scale/2, 3, 'black', true)
-  })
+  if (options.showPoints) {
+    keyframes.forEach(function(e) {
+      circle(sctx, e.real*w/scale/2, e.imag*w/scale/2, 3, 'black', true)
+    })
+  }
   evaluateKeyframes()
 }
 
