@@ -18,18 +18,16 @@
         <span>Fade: </span><br><input id="fade-path" type="range" min="0" max="3" value="0" step="0.25"><br>
         <span>Number of Circles: </span><br><input id="comp-sider" type="range" min="0" max="1" value="0" step="1">
         <span id="num-circles">0</span> circles<br>
-        <span>Show circles: </span>
-        <input type="checkbox" id="show-circles" checked autocomplete="off"><br>
-        <span>Show samples: </span>
-        <input type="checkbox" id="show-points" checked autocomplete="off"><br>
-        <span>Sample Mode: </span>
+        <label>Show circles: <input type="checkbox" id="show-circles" checked autocomplete="off"></label><br>
+				<label>Show samples: <input type="checkbox" id="show-points" checked autocomplete="off"></label><br>
+        <label>Sample Mode: 
         <select id="mode-select">
           <option value="input">Input</option>
           <option value="curve">Curve</option>
           <option value="point">Point</option>
-        </select><br>
+        </select></label>
         <div id="input-controls" style="padding:0">
-          <span>Input Data Points: </span><br><br>
+          <span>Input Data Points: </span><br>
           <textarea id="sample-data" cols="10" rows="12" style="font-family:monospace;"></textarea>
           <br><button id="input-fit">Evaluate</button>
           <br><button id="export-input">Export points</button>
