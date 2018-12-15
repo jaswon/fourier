@@ -18,16 +18,16 @@
         <span>Fade: </span><br><input id="fade-path" type="range" min="0" max="3" value="0" step="0.25"><br>
         <span>Number of Circles: </span><br><input id="comp-sider" type="range" min="0" max="1" value="0" step="1">
         <span id="num-circles">0</span> circles<br>
+        <span>Show circles: </span>
+        <input type="checkbox" id="show-circles" checked autocomplete="off"><br>
+        <span>Show samples: </span>
+        <input type="checkbox" id="show-points" checked autocomplete="off"><br>
         <span>Sample Mode: </span>
         <select id="mode-select">
           <option value="input">Input</option>
           <option value="curve">Curve</option>
           <option value="point">Point</option>
         </select><br>
-        <span>Show circles: </span>
-        <input type="checkbox" id="show-circles" checked autocomplete="off"><br>
-        <span>Show samples: </span>
-        <input type="checkbox" id="show-points" checked autocomplete="off">
         <div id="input-controls" style="padding:0">
           <span>Input Data Points: </span><br><br>
           <textarea id="sample-data" cols="10" rows="12" style="font-family:monospace;"></textarea>
@@ -50,6 +50,8 @@
         <li><b>Animation Speed</b>: Controls the speed at which the path is drawn</li>
         <li><b>Fade</b>: Controls the speed at which the path fades (Far-left indicates no fade)</li>
         <li><b>Compression</b>: Determines how many epicycles to use (Removes from the system in order of radius)</li>
+        <li><b>Show circles</b>: Show/hide epicycles</li>
+        <li><b>Show samples</b>: Show/hide sample points</li>
         <li><b>Sample Mode</b>: Determines the method of sample input (Switching modes clears the screen)</li>
         <ul>
           <li><b>Input Mode</b>: Type in the coordinates of the samples</li>
